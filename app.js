@@ -7,7 +7,7 @@ const cheerio = require('cheerio');
 const doc = new PDFDocument;
 const images = [];
 
-const comicsName = 'sarvshakti-sarvnaayak-8-multistarer-comics-rc-2615';
+const comicsName = '';
 
 doc.pipe(fs.createWriteStream(`${comicsName}.pdf`));
 
