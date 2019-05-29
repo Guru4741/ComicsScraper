@@ -1,5 +1,8 @@
 # ComicsScraper
-Node Js Script to scrape Comics over Web
+
+Scrape comics over the web and get it as PDF.
+
+
 Steps :
   
   1) npm install 
