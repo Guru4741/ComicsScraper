@@ -1,6 +1,7 @@
-var fs = require('fs')
-var request = require('request-promise');
-var PDFDocument = require('pdfkit');
+const fs = require('fs')
+
+const request = require('request-promise');
+const PDFDocument = require('pdfkit');
 const rp = require('request-promise');
 const cheerio = require('cheerio');
 
@@ -9,13 +10,14 @@ const images = [];
 
 const comicsName = '';
 
+//PDF file generation
 doc.pipe(fs.createWriteStream(`${comicsName}.pdf`));
 
 function getComics() {
 
     rp({
         uri: `http://www.sjcomics.com/${comicsName}/`,
-        timeout: 60000
+        timeout: 60000  //10 minutes
     })
         .then(function (data) {
             const $ = cheerio.load(data);
@@ -45,6 +47,7 @@ function getComics() {
             console.log(err)
         })
 }
+
 
 function downloadImgs(imageurls) {
     var promises = [];
