@@ -50,8 +50,8 @@ function getComics() {
 
 
 function downloadImgs(imageurls) {
-    var promises = [];
-    for (var i = 0; i <= imageurls.length; i++) {
+    let promises = [];
+    for (let i = 0; i <= imageurls.length; i++) {
 
         if (typeof imageurls[i] !== "undefined") {
             img = './images/' + i + '.jpg';
