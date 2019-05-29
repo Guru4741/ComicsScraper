@@ -1,20 +1,74 @@
-const request = require('request');
+var fs = require('fs')
+var request = require('request-promise');
+var PDFDocument = require('pdfkit');
+const rp = require('request-promise');
 const cheerio = require('cheerio');
-const fs = require('fs');
 
-request('http://www.sjcomics.com/chacha-chaudhary-aur-aaj-ka-robinhood/', function (error, response, body) {
-    if (error) {
-        console.log('Error : ', error);
-    } else {
-        const $ = cheerio.load(body);
-        const images = [];
-        $('img.attachment-thumbnail').each(function (i, elem) {
-            const image = $(this).attr('src').replace(/'/g, "");
-            const queryStringIndex = image.indexOf('?');
-            images[i] = image.substring(0, queryStringIndex);
+const doc = new PDFDocument;
+const images = [];
+
+const comicsName = 'sarvshakti-sarvnaayak-8-multistarer-comics-rc-2615';
+
+doc.pipe(fs.createWriteStream(`${comicsName}.pdf`));
+
+function getComics() {
+
+    rp({
+        uri: `http://www.sjcomics.com/${comicsName}/`,
+        timeout: 60000
+    })
+        .then(function (data) {
+            const $ = cheerio.load(data);
+
+            $('img').each(function (i, elem) {
+
+                if ($(this).attr('class') !== undefined) {
+
+                    if ($(this).attr('class').match(/^wp-image-/)) {
+
+                        const image = $(this).attr('src').replace(/'/g, "");
+                        const queryStringIndex = image.indexOf('?');
+                        images[i] = image.substring(0, queryStringIndex);
+                    }
+                    if ($(this).attr('class').match(/^attachment-thumbnail/)) {
+
+                        const image = $(this).attr('src').replace(/'/g, "");
+                        const queryStringIndex = image.indexOf('?');
+                        images[i] = image.substring(0, queryStringIndex);
+                    }
+                }
+            })
+            console.log(images);
+            downloadImgs(images);
         })
+        .catch(function (err) {
+            console.log(err)
+        })
+}
 
-        //Consoling the images array
-        console.log(images);
+function downloadImgs(imageurls) {
+    var promises = [];
+    for (var i = 0; i <= imageurls.length; i++) {
+
+        if (typeof imageurls[i] !== "undefined") {
+            img = './images/' + i + '.jpg';
+            let req = request(imageurls[i]);
+            req.pipe(fs.createWriteStream(img));
+            promises.push(req);
+        }
+
     }
-});
+
+    Promise.all(promises).then(function (data) {
+        images.forEach((each, index) => {
+            doc.image(`./images/${index}.jpg`, 0, 0, { fit: [816, 816] }).addPage()
+        })
+        doc.end();
+    });
+
+
+};
+
+getComics();
+
+
